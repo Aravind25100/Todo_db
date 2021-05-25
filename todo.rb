@@ -1,25 +1,25 @@
 require "active_record"
 
 class Todo < ActiveRecord::Base
-  # This will return true if the due_date is today otherwise it will return false
-  def due_today?
-    due_date == Date.today
+  # # This will return the list of due_today todos
+  def self.due_today
+    all.order(id: :ASC).where("due_date = ?", Date.today)
   end
 
-  # This will return true if the date is overdue otherwise it will return false
-  def overdue?
-    due_date < Date.today
+  #This will return the list of overdue todos
+  def self.overdue
+    all.order(id: :ASC).where("due_date < ?", Date.today)
   end
 
-  # # This will return true if the due_date is due_later otherwise it will return false
-  def due_later?
-    due_date > Date.today
+  # This will return the list of due_later todos
+  def self.due_later
+    all.order(id: :ASC).where("due_date > ?", Date.today)
   end
 
   # It will return the todo result according to the date
   def to_displayable_string
     display_status = completed ? "[X]" : "[ ]"
-    display_date = due_today? ? nil : due_date
+    display_date = due_date == Date.today ? nil : due_date
     "#{id}. #{display_status} #{todo_text} #{display_date}"
   end
 
@@ -28,13 +28,13 @@ class Todo < ActiveRecord::Base
     puts "My Todo-list"
 
     puts "\nOverdue"
-    puts all.order(id: :ASC).filter { |todo| todo.overdue? }.map { |todo| todo.to_displayable_string }
+    puts overdue.map { |todo| todo.to_displayable_string }
 
     puts "\n\nDue Today"
-    puts all.order(id: :ASC).filter { |todo| todo.due_today? }.map { |todo| todo.to_displayable_string }
+    puts due_today.map { |todo| todo.to_displayable_string }
 
     puts "\n\nDue Later"
-    puts all.order(id: :ASC).filter { |todo| todo.due_later? }.map { |todo| todo.to_displayable_string }
+    puts due_later.map { |todo| todo.to_displayable_string }
   end
 
   # Used to add a new todo in the todos table
